@@ -2,7 +2,6 @@ package com.sba.pojo;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
 
 @Table(name = "role")
 @Entity

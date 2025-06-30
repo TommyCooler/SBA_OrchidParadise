@@ -1,90 +1,109 @@
 import React, { useEffect, useState } from 'react';
 import { Table, Container, Button, Form, FormGroup, Image, Modal, Card, Row, Col, Badge, Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { useForm } from "react-hook-form";
 import { Link } from 'react-router';
+import { OrchidService, CategoryService } from '../services';
 
 // Mock data for testing when API fails
 const mockOrchids = [
-  {
-    id: "1",
-    orchidName: "Phalaenopsis Orchid",
-    image: "https://images.unsplash.com/photo-1566550747935-21b4605d282d?w=500",
-    isNatural: true
-  },
-  {
-    id: "2", 
-    orchidName: "Cattleya Orchid",
-    image: "https://images.unsplash.com/photo-1567014749344-506469721e67?w=500",
-    isNatural: false
-  },
-  {
-    id: "3",
-    orchidName: "Dendrobium Orchid", 
-    image: "https://images.unsplash.com/photo-1610397648930-477b8c7f0943?w=500",
-    isNatural: true
-  },
-  {
-    id: "4",
-    orchidName: "Vanda Orchid",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500", 
-    isNatural: false
-  },
-  {
-    id: "5",
-    orchidName: "Oncidium Orchid",
-    image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=500",
-    isNatural: true
-  },
-  {
-    id: "6",
-    orchidName: "Cymbidium Orchid",
-    image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500",
-    isNatural: false
-  },
-  {
-    id: "7",
-    orchidName: "Paphiopedilum Orchid",
-    image: "https://images.unsplash.com/photo-1591958911259-bee2173bdcbc?w=500",
-    isNatural: true
-  },
-  {
-    id: "8",
-    orchidName: "Miltonia Orchid",
-    image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500",
-    isNatural: false
-  }
+//   {
+//     id: "1",
+//     orchidName: "Phalaenopsis Orchid",
+//     image: "https://images.unsplash.com/photo-1566550747935-21b4605d282d?w=500",
+//     isNatural: true
+//   },
+//   {
+//     id: "2", 
+//     orchidName: "Cattleya Orchid",
+//     image: "https://images.unsplash.com/photo-1567014749344-506469721e67?w=500",
+//     isNatural: false
+//   },
+//   {
+//     id: "3",
+//     orchidName: "Dendrobium Orchid", 
+//     image: "https://images.unsplash.com/photo-1610397648930-477b8c7f0943?w=500",
+//     isNatural: true
+//   },
+//   {
+//     id: "4",
+//     orchidName: "Vanda Orchid",
+//     image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500", 
+//     isNatural: false
+//   },
+//   {
+//     id: "5",
+//     orchidName: "Oncidium Orchid",
+//     image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=500",
+//     isNatural: true
+//   },
+//   {
+//     id: "6",
+//     orchidName: "Cymbidium Orchid",
+//     image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=500",
+//     isNatural: false
+//   },
+//   {
+//     id: "7",
+//     orchidName: "Paphiopedilum Orchid",
+//     image: "https://images.unsplash.com/photo-1591958911259-bee2173bdcbc?w=500",
+//     isNatural: true
+//   },
+//   {
+//     id: "8",
+//     orchidName: "Miltonia Orchid",
+//     image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=500",
+//     isNatural: false
+//   }
 ];
 
 export default function ListOfOrchids() {
-    const baseUrl = import.meta.env.VITE_API_URL;
     const [api, setAPI] = useState([]);
     const [show, setShow] = useState(false);
     const [loading, setLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [usingMockData, setUsingMockData] = useState(false);
+    const [categories, setCategories] = useState([]);
+    const [loadingCategories, setLoadingCategories] = useState(false);
 
     const handleClose = () => setShow(false);
-    const handleShow = () => setShow(true);
+    const handleShow = async () => {
+        setShow(true);
+        await fetchCategories();
+    };
+    
     const { register, handleSubmit, formState: { errors }, control, reset, watch } = useForm();
-    const watchedImage = watch('image');
+    const watchedImage = watch('orchidUrl');
 
     useEffect(() => {
         fetchData();
     }, []);
 
+    const fetchCategories = async () => {
+        setLoadingCategories(true);
+        try {
+            const categoryData = await CategoryService.getAllCategories();
+            setCategories(categoryData);
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+            toast.error('Failed to load categories');
+            setCategories([]);
+        } finally {
+            setLoadingCategories(false);
+        }
+    };
+
     const fetchData = async () => {
         setLoading(true);
         try {
-          const response = await axios.get(baseUrl); 
-          const sortedData = response.data.sort((a, b) => parseInt(b.id) - parseInt(a.id));
+          const data = await OrchidService.getAllOrchids();
+          const sortedData = data.sort((a, b) => parseInt(b.id) - parseInt(a.id));
           setAPI(sortedData);
           setUsingMockData(false);
         } catch (error) {
           console.error('Error fetching data:', error);
           setAPI(mockOrchids);
-          setUsingMockData(true);
+        //   setUsingMockData(true);
           toast.error("Using mock data due to API error");
         } finally {
           setLoading(false);
@@ -94,7 +113,7 @@ export default function ListOfOrchids() {
     const handleDelete = async (id) => {
         try {
           if (!usingMockData) {
-            const response = await axios.delete(`${baseUrl}/${id}`);
+            await OrchidService.deleteOrchid(id);
             fetchData();
             toast.success("Orchid deleted successfully!");
           } else {
@@ -111,30 +130,41 @@ export default function ListOfOrchids() {
     const onSubmit = async (data) => {
         setIsSubmitting(true);
         try {
-          if (!usingMockData) {
-            const response = await axios.post(baseUrl, data, { 
-              headers: { 'Content-Type': 'application/json' }
-            });
-            fetchData();
-            toast.success("Orchid added successfully!");
-          } else {
-            // Mock add for mock data
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            const newOrchid = {
-              ...data,
-              id: String(Math.max(...api.map(o => parseInt(o.id)), 0) + 1)
+            // Convert form data to match OrchidRequest DTO structure
+            const orchidRequest = {
+                orchidName: data.orchidName.trim(),
+                orchidDescription: data.orchidDescription.trim(),
+                orchidUrl: data.orchidUrl.trim(),
+                price: parseFloat(data.price),
+                isNatural: Boolean(data.isNatural), // Ensure it's a boolean, not undefined
+                categoryId: parseInt(data.categoryId) // Convert to Long (which is number in JS)
             };
-            setAPI(prev => [newOrchid, ...prev]);
-            toast.success("Mock orchid added successfully!");
-          }
-          
-          setShow(false);
-          reset();
+
+            console.log('Creating orchid with request:', orchidRequest);
+
+            if (!usingMockData) {
+                await OrchidService.createOrchid(orchidRequest);
+                fetchData();
+                toast.success("Orchid added successfully!");
+            } else {
+                // Mock add for mock data
+                await new Promise(resolve => setTimeout(resolve, 1000));
+                const newOrchid = {
+                    ...orchidRequest,
+                    id: String(Math.max(...api.map(o => parseInt(o.id)), 0) + 1),
+                    image: orchidRequest.orchidUrl // Map orchidUrl to image for mock data display
+                };
+                setAPI(prev => [newOrchid, ...prev]);
+                toast.success("Mock orchid added successfully!");
+            }
+            
+            setShow(false);
+            reset();
         } catch (error) {
-          console.log(error.message);
-          toast.error("Orchid addition failed!");
+            console.error('Error creating orchid:', error);
+            toast.error(error.message || "Orchid addition failed!");
         } finally {
-          setIsSubmitting(false);
+            setIsSubmitting(false);
         }
     };
 
@@ -242,7 +272,7 @@ export default function ListOfOrchids() {
                                     <div className="position-relative">
                                         <Card.Img 
                                             variant="top" 
-                                            src={orchid.image} 
+                                            src={orchid.orchidUrl} 
                                             onError={(e) => {
                                                 e.target.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(orchid.orchidName)}&background=random&size=300`;
                                             }}
@@ -284,7 +314,7 @@ export default function ListOfOrchids() {
                                         </Card.Text>
                                         
                                         <div className="d-flex gap-2">
-                                            <Link to={`/edit/${orchid.id}`} className="flex-fill">
+                                            <Link to={`/edit/${orchid.orchidId}`} className="flex-fill">
                                                 <Button 
                                                     variant="outline-primary" 
                                                     size="sm"
@@ -300,7 +330,7 @@ export default function ListOfOrchids() {
                                                 className="rounded-pill px-3"
                                                 onClick={() => {
                                                     if(confirm(`Are you sure you want to delete ${orchid.orchidName}?`)) {
-                                                        handleDelete(orchid.id);
+                                                        handleDelete(orchid.orchidId);
                                                     }
                                                 }}
                                             >
@@ -320,7 +350,7 @@ export default function ListOfOrchids() {
                     onHide={handleClose} 
                     backdrop="static"
                     centered
-                    size="lg"
+                    size="xl"
                 >
                     <Modal.Header 
                         closeButton 
@@ -342,16 +372,27 @@ export default function ListOfOrchids() {
                         <form onSubmit={handleSubmit(onSubmit)}>
                             <Row>
                                 <Col md={8}>
+                                    {/* Orchid Name */}
                                     <Form.Group className="mb-4">
                                         <Form.Label className="fw-semibold">
-                                            <i className="bi bi-tag me-2"></i>Orchid Name
+                                            <i className="bi bi-tag me-2"></i>Orchid Name *
                                         </Form.Label>
                                         <Form.Control
                                             type="text"
                                             placeholder="Enter orchid name..."
                                             className="rounded-pill px-3"
                                             autoFocus
-                                            {...register("orchidName", { required: "Name is required" })}
+                                            {...register("orchidName", { 
+                                                required: "Orchid name is required",
+                                                maxLength: {
+                                                    value: 100,
+                                                    message: "Name must be less than 100 characters"
+                                                },
+                                                minLength: {
+                                                    value: 2,
+                                                    message: "Name must be at least 2 characters"
+                                                }
+                                            })}
                                         />
                                         {errors.orchidName && (
                                             <div className="text-danger small mt-1">
@@ -361,36 +402,145 @@ export default function ListOfOrchids() {
                                         )}
                                     </Form.Group>
 
+                                    {/* Orchid Description */}
                                     <Form.Group className="mb-4">
                                         <Form.Label className="fw-semibold">
-                                            <i className="bi bi-image me-2"></i>Image URL
+                                            <i className="bi bi-file-text me-2"></i>Description *
                                         </Form.Label>
-                                        <Form.Control 
-                                            type="text" 
-                                            placeholder="https://example.com/orchid-image.jpg"
-                                            className="rounded-pill px-3"
-                                            {...register("image", { 
-                                                required: "Image URL is required",
-                                                pattern: {
-                                                    value: /(https?:\/\/[^\s]+)/i,
-                                                    message: "Please enter a valid URL"
+                                        <Form.Control
+                                            as="textarea"
+                                            rows={3}
+                                            placeholder="Enter orchid description..."
+                                            className="rounded-3 px-3"
+                                            {...register("orchidDescription", {
+                                                required: "Description is required",
+                                                maxLength: {
+                                                    value: 500,
+                                                    message: "Description must be less than 500 characters"
+                                                },
+                                                minLength: {
+                                                    value: 10,
+                                                    message: "Description must be at least 10 characters"
                                                 }
                                             })}
                                         />
-                                        {errors.image && (
+                                        {errors.orchidDescription && (
                                             <div className="text-danger small mt-1">
                                                 <i className="bi bi-exclamation-circle me-1"></i>
-                                                {errors.image.message}
+                                                {errors.orchidDescription.message}
                                             </div>
                                         )}
                                     </Form.Group>
 
+                                    {/* Image URL */}
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className="fw-semibold">
+                                            <i className="bi bi-image me-2"></i>Image URL *
+                                        </Form.Label>
+                                        <Form.Control 
+                                            type="url" 
+                                            placeholder="https://example.com/orchid-image.jpg"
+                                            className="rounded-pill px-3"
+                                            {...register("orchidUrl", { 
+                                                required: "Image URL is required",
+                                                maxLength: {
+                                                    value: 255,
+                                                    message: "URL must be less than 255 characters"
+                                                },
+                                                pattern: {
+                                                    value: /^https?:\/\/.+\..+/i,
+                                                    message: "Please enter a valid URL starting with http:// or https://"
+                                                }
+                                            })}
+                                        />
+                                        {errors.orchidUrl && (
+                                            <div className="text-danger small mt-1">
+                                                <i className="bi bi-exclamation-circle me-1"></i>
+                                                {errors.orchidUrl.message}
+                                            </div>
+                                        )}
+                                    </Form.Group>
+
+                                    {/* Price */}
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className="fw-semibold">
+                                            <i className="bi bi-currency-dollar me-2"></i>Price *
+                                        </Form.Label>
+                                        <Form.Control
+                                            type="number"
+                                            step="0.01"
+                                            min="0.01"
+                                            placeholder="0.00"
+                                            className="rounded-pill px-3"
+                                            {...register("price", {
+                                                required: "Price is required",
+                                                min: {
+                                                    value: 0.01,
+                                                    message: "Price must be greater than 0"
+                                                },
+                                                max: {
+                                                    value: 999999.99,
+                                                    message: "Price is too high"
+                                                }
+                                            })}
+                                        />
+                                        {errors.price && (
+                                            <div className="text-danger small mt-1">
+                                                <i className="bi bi-exclamation-circle me-1"></i>
+                                                {errors.price.message}
+                                            </div>
+                                        )}
+                                    </Form.Group>
+
+                                    {/* Category Selection */}
+                                    <Form.Group className="mb-4">
+                                        <Form.Label className="fw-semibold">
+                                            <i className="bi bi-folder me-2"></i>Category *
+                                        </Form.Label>
+                                        <Form.Select
+                                            className="rounded-pill px-3"
+                                            {...register("categoryId", {
+                                                required: "Category is required",
+                                                validate: value => {
+                                                    if (!value || value === "") {
+                                                        return "Please select a category";
+                                                    }
+                                                    return true;
+                                                }
+                                            })}
+                                            disabled={loadingCategories}
+                                        >
+                                            <option value="">
+                                                {loadingCategories ? "Loading categories..." : "Select a category"}
+                                            </option>
+                                            {categories.map((category) => (
+                                                <option key={category.categoryId} value={category.categoryId}>
+                                                    {category.categoryName}
+                                                </option>
+                                            ))}
+                                        </Form.Select>
+                                        {errors.categoryId && (
+                                            <div className="text-danger small mt-1">
+                                                <i className="bi bi-exclamation-circle me-1"></i>
+                                                {errors.categoryId.message}
+                                            </div>
+                                        )}
+                                        {categories.length === 0 && !loadingCategories && (
+                                            <div className="text-warning small mt-1">
+                                                <i className="bi bi-exclamation-triangle me-1"></i>
+                                                No categories available. Please create a category first.
+                                            </div>
+                                        )}
+                                    </Form.Group>
+
+                                    {/* Natural Switch - with default value */}
                                     <Form.Group className="mb-4">
                                         <div className="d-flex align-items-center">
                                             <Form.Check
                                                 type="switch"
                                                 id="natural-switch"
                                                 className="me-3"
+                                                defaultChecked={false}
                                                 {...register("isNatural")}
                                             />
                                             <Form.Label htmlFor="natural-switch" className="mb-0 fw-semibold">
@@ -399,7 +549,7 @@ export default function ListOfOrchids() {
                                             </Form.Label>
                                         </div>
                                         <small className="text-muted">
-                                            Toggle if this is a naturally grown orchid
+                                            Toggle if this is a naturally grown orchid (not industry produced)
                                         </small>
                                     </Form.Group>
                                 </Col>
@@ -422,6 +572,12 @@ export default function ListOfOrchids() {
                                                     e.target.src = "https://via.placeholder.com/300x200?text=Invalid+URL";
                                                 }}
                                             />
+                                            <Card.Body>
+                                                <small className="text-muted">
+                                                    <i className="bi bi-info-circle me-1"></i>
+                                                    Image preview will update as you type the URL
+                                                </small>
+                                            </Card.Body>
                                         </Card>
                                     </div>
                                 </Col>
@@ -439,7 +595,7 @@ export default function ListOfOrchids() {
                                 <Button 
                                     variant="primary" 
                                     type="submit"
-                                    disabled={isSubmitting}
+                                    disabled={isSubmitting || categories.length === 0}
                                     className="rounded-pill px-4"
                                     style={{ 
                                         background: usingMockData ? 

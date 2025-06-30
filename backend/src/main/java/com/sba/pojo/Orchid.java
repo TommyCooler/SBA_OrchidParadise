@@ -2,7 +2,6 @@ package com.sba.pojo;
 
 import jakarta.persistence.*;
 
-import java.util.Set;
 
 @Entity
 @Table(name = "orchid")
@@ -28,7 +27,7 @@ public class Orchid {
     @Column(name = "price", nullable = false)
     private Double price;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 

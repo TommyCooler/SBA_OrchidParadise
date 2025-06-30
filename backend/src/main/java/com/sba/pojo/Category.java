@@ -30,6 +30,10 @@ public class Category {
         this.categoryName = categoryName;
     }
 
+    public Category(String categoryName) {
+        this.categoryName = categoryName;
+    }
+
     public Category(Long categoryId, String categoryName) {
         this.categoryId = categoryId;
         this.categoryName = categoryName;

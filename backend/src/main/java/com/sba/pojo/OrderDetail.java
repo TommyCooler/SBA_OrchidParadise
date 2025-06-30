@@ -1,7 +1,6 @@
 package com.sba.pojo;
 
 import jakarta.persistence.*;
-import org.aspectj.weaver.ast.Or;
 
 @Entity
 @Table(name = "order_detail")

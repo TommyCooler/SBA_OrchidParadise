@@ -1,124 +1,155 @@
 import React, { useEffect, useState } from 'react';
 import Container from 'react-bootstrap/esm/Container';
 import { Button, Col, Form, FormGroup, Image, Row, Card, Spinner, Alert } from 'react-bootstrap';
-import axios from 'axios';
 import toast, { Toaster } from 'react-hot-toast';
 import { Controller, useForm } from "react-hook-form";
 import { useNavigate, useParams } from 'react-router';
+import { OrchidService, CategoryService } from '../services';
 
 // Mock data for testing when API fails
 const mockOrchids = [
   {
-    id: "1",
+    orchidId: "1",
     orchidName: "Phalaenopsis Orchid",
-    image: "https://images.unsplash.com/photo-1566550747935-21b4605d282d?w=500",
-    isNatural: true
+    orchidDescription: "Beautiful white phalaenopsis orchid with elegant petals",
+    orchidUrl: "https://images.unsplash.com/photo-1566550747935-21b4605d282d?w=500",
+    price: 25.99,
+    isNatural: true,
+    categoryId: 1
   },
   {
-    id: "2", 
+    orchidId: "2", 
     orchidName: "Cattleya Orchid",
-    image: "https://images.unsplash.com/photo-1567014749344-506469721e67?w=500",
-    isNatural: false
-  },
-  {
-    id: "3",
-    orchidName: "Dendrobium Orchid", 
-    image: "https://images.unsplash.com/photo-1610397648930-477b8c7f0943?w=500",
-    isNatural: true
-  },
-  {
-    id: "4",
-    orchidName: "Vanda Orchid",
-    image: "https://images.unsplash.com/photo-1583121274602-3e2820c69888?w=500", 
-    isNatural: false
-  },
-  {
-    id: "5",
-    orchidName: "Oncidium Orchid",
-    image: "https://images.unsplash.com/photo-1582794543139-8ac9cb0f7b11?w=500",
-    isNatural: true
+    orchidDescription: "Vibrant purple cattleya orchid with large blooms",
+    orchidUrl: "https://images.unsplash.com/photo-1567014749344-506469721e67?w=500",
+    price: 45.50,
+    isNatural: false,
+    categoryId: 2
   }
 ];
 
 export default function EditOrchid() {
-  const baseUrl = import.meta.env.VITE_API_URL || "";
   const { id } = useParams();
   const navigate = useNavigate();
   const [api, setAPI] = useState({});
   const [loading, setLoading] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [usingMockData, setUsingMockData] = useState(false);
+  const [categories, setCategories] = useState([]);
+  const [loadingCategories, setLoadingCategories] = useState(false);
   
   const { register, handleSubmit, formState: { errors }, control, setValue, watch } = useForm();
-  const watchedImage = watch('image');
+  const watchedImage = watch('orchidUrl');
 
   useEffect(() => {
-    const fetchOrchidData = async () => {
-      setLoading(true);
-      try {
-        // Try to fetch from API first
-        const response = await axios.get(`${baseUrl}/${id}`);
-        setAPI(response.data);
-        setValue('orchidName', response.data.orchidName);
-        setValue('image', response.data.image);
-        setValue('isNatural', response.data.isNatural);
-        setUsingMockData(false);
-      } catch (error) {
-        console.error('Error fetching data:', error);
-        
-        // Use mock data if API fails
-        const mockOrchid = mockOrchids.find(orchid => orchid.id === id);
-        if (mockOrchid) {
-          setAPI(mockOrchid);
-          setValue('orchidName', mockOrchid.orchidName);
-          setValue('image', mockOrchid.image);
-          setValue('isNatural', mockOrchid.isNatural);
-          setUsingMockData(true);
-          toast.error('API unavailable. Using test data.');
-        } else {
-          // Generate random mock data if specific ID not found
-          const randomMockData = {
-            id: id,
-            orchidName: `Test Orchid #${id}`,
-            image: `https://ui-avatars.com/api/?name=Orchid+${id}&background=random&size=400`,
-            isNatural: Math.random() > 0.5
-          };
-          setAPI(randomMockData);
-          setValue('orchidName', randomMockData.orchidName);
-          setValue('image', randomMockData.image);
-          setValue('isNatural', randomMockData.isNatural);
-          setUsingMockData(true);
-          toast.error('API unavailable. Generated test data.');
-        }
-      } finally {
-        setLoading(false);
-      }
+    const fetchData = async () => {
+      await Promise.all([fetchOrchidData(), fetchCategories()]);
     };
+    fetchData();
+  }, [id, setValue]);
 
-    fetchOrchidData();
-  }, [id, setValue, baseUrl]);
+  const fetchCategories = async () => {
+    setLoadingCategories(true);
+    try {
+      const categoryData = await CategoryService.getAllCategories();
+      setCategories(categoryData);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      toast.error('Failed to load categories');
+      setCategories([]);
+    } finally {
+      setLoadingCategories(false);
+    }
+  };
+
+  const fetchOrchidData = async () => {
+    setLoading(true);
+    try {
+      // Try to fetch from API first
+      const orchidData = await OrchidService.getOrchidById(id);
+      setAPI(orchidData);
+      
+      // Set form values with the complete orchid data
+      setValue('orchidName', orchidData.orchidName || '');
+      setValue('orchidDescription', orchidData.orchidDescription || '');
+      setValue('orchidUrl', orchidData.orchidUrl || orchidData.image || '');
+      setValue('price', orchidData.price || '');
+      setValue('isNatural', orchidData.isNatural || false);
+      setValue('categoryId', orchidData.categoryId || '');
+      
+      setUsingMockData(false);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      
+      // Use mock data if API fails
+      const mockOrchid = mockOrchids.find(orchid => orchid.orchidId === id);
+      if (mockOrchid) {
+        setAPI(mockOrchid);
+        setValue('orchidName', mockOrchid.orchidName);
+        setValue('orchidDescription', mockOrchid.orchidDescription);
+        setValue('orchidUrl', mockOrchid.orchidUrl);
+        setValue('price', mockOrchid.price);
+        setValue('isNatural', mockOrchid.isNatural);
+        setValue('categoryId', mockOrchid.categoryId);
+        setUsingMockData(true);
+        toast.error('API unavailable. Using test data.');
+      } else {
+        // Generate random mock data if specific ID not found
+        const randomMockData = {
+          orchidId: id,
+          orchidName: `Test Orchid #${id}`,
+          orchidDescription: `Description for test orchid #${id}`,
+          orchidUrl: `https://ui-avatars.com/api/?name=Orchid+${id}&background=random&size=400`,
+          price: Math.floor(Math.random() * 100) + 10,
+          isNatural: Math.random() > 0.5,
+          categoryId: 1
+        };
+        setAPI(randomMockData);
+        setValue('orchidName', randomMockData.orchidName);
+        setValue('orchidDescription', randomMockData.orchidDescription);
+        setValue('orchidUrl', randomMockData.orchidUrl);
+        setValue('price', randomMockData.price);
+        setValue('isNatural', randomMockData.isNatural);
+        setValue('categoryId', randomMockData.categoryId);
+        setUsingMockData(true);
+        toast.error('API unavailable. Generated test data.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const onSubmit = async (data) => {
     setIsSubmitting(true);
     try {
+      // Convert form data to match OrchidRequest DTO structure
+      const orchidRequest = {
+        orchidName: data.orchidName.trim(),
+        orchidDescription: data.orchidDescription.trim(),
+        orchidUrl: data.orchidUrl.trim(),
+        price: parseFloat(data.price),
+        isNatural: Boolean(data.isNatural),
+        categoryId: parseInt(data.categoryId)
+      };
+
+      console.log('Updating orchid with request:', orchidRequest);
+
       if (!usingMockData) {
         // Try real API update
-        await axios.put(`${baseUrl}/${id}`, data, {
-          headers: { 'Content-Type': 'application/json' }
-        });
-        toast.success('Orchid edited successfully!');
+        await OrchidService.updateOrchid(id, orchidRequest);
+        toast.success('Orchid updated successfully!');
       } else {
         // Simulate API call for mock data
         await new Promise(resolve => setTimeout(resolve, 1000));
-        toast.success('Mock edit completed successfully!');
+        toast.success('Mock update completed successfully!');
       }
       
       setTimeout(() => {
         navigate('/');
       }, 1500);
     } catch (error) {
-      console.error(error);
-      toast.error('Failed to edit orchid.');
+      console.error('Error updating orchid:', error);
+      toast.error(error.message || 'Failed to update orchid.');
     } finally {
       setIsSubmitting(false);
     }
@@ -171,7 +202,7 @@ export default function EditOrchid() {
 
         <Row className="justify-content-center">
           {/* Form Section */}
-          <Col lg={8}>
+          <Col lg={10}>
             <Card className="shadow-lg border-0 rounded-4 overflow-hidden">
               <Card.Header 
                 className="border-0 py-4"
@@ -189,24 +220,28 @@ export default function EditOrchid() {
                   <Row>
                     {/* Left Column - Form Fields */}
                     <Col md={8}>
+                      {/* Orchid Name */}
                       <Form.Group className="mb-4">
                         <Form.Label className="fw-semibold mb-3">
                           <i className="bi bi-tag me-2 text-primary"></i>
-                          Orchid Name
+                          Orchid Name *
                         </Form.Label>
-                        <Controller
-                          name="orchidName"
-                          control={control}
-                          rules={{ required: "Orchid name is required" }}
-                          render={({ field }) => (
-                            <Form.Control 
-                              {...field} 
-                              type="text" 
-                              placeholder="Enter orchid name..."
-                              className="rounded-pill px-4 py-3"
-                              style={{ fontSize: '1.1rem' }}
-                            />
-                          )}
+                        <Form.Control
+                          type="text"
+                          placeholder="Enter orchid name..."
+                          className="rounded-pill px-4 py-3"
+                          style={{ fontSize: '1.1rem' }}
+                          {...register("orchidName", { 
+                            required: "Orchid name is required",
+                            maxLength: {
+                              value: 100,
+                              message: "Name must be less than 100 characters"
+                            },
+                            minLength: {
+                              value: 2,
+                              message: "Name must be at least 2 characters"
+                            }
+                          })}
                         />
                         {errors.orchidName && (
                           <div className="text-danger small mt-2">
@@ -216,39 +251,140 @@ export default function EditOrchid() {
                         )}
                       </Form.Group>
 
+                      {/* Orchid Description */}
                       <Form.Group className="mb-4">
                         <Form.Label className="fw-semibold mb-3">
-                          <i className="bi bi-image me-2 text-primary"></i>
-                          Image URL
+                          <i className="bi bi-file-text me-2 text-primary"></i>
+                          Description *
                         </Form.Label>
-                        <Controller
-                          name="image"
-                          control={control}
-                          rules={{ 
-                            required: "Image URL is required",
-                            pattern: {
-                              value: /(https?:\/\/[^\s]+)/i,
-                              message: "Please enter a valid URL"
+                        <Form.Control
+                          as="textarea"
+                          rows={3}
+                          placeholder="Enter orchid description..."
+                          className="rounded-3 px-4 py-3"
+                          style={{ fontSize: '1.1rem' }}
+                          {...register("orchidDescription", {
+                            required: "Description is required",
+                            maxLength: {
+                              value: 500,
+                              message: "Description must be less than 500 characters"
+                            },
+                            minLength: {
+                              value: 10,
+                              message: "Description must be at least 10 characters"
                             }
-                          }}
-                          render={({ field }) => (
-                            <Form.Control 
-                              {...field} 
-                              type="text" 
-                              placeholder="https://example.com/orchid-image.jpg"
-                              className="rounded-pill px-4 py-3"
-                              style={{ fontSize: '1.1rem' }}
-                            />
-                          )}
+                          })}
                         />
-                        {errors.image && (
+                        {errors.orchidDescription && (
                           <div className="text-danger small mt-2">
                             <i className="bi bi-exclamation-circle me-1"></i>
-                            {errors.image.message}
+                            {errors.orchidDescription.message}
                           </div>
                         )}
                       </Form.Group>
 
+                      {/* Image URL */}
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-semibold mb-3">
+                          <i className="bi bi-image me-2 text-primary"></i>
+                          Image URL *
+                        </Form.Label>
+                        <Form.Control 
+                          type="url" 
+                          placeholder="https://example.com/orchid-image.jpg"
+                          className="rounded-pill px-4 py-3"
+                          style={{ fontSize: '1.1rem' }}
+                          {...register("orchidUrl", { 
+                            required: "Image URL is required",
+                            maxLength: {
+                              value: 255,
+                              message: "URL must be less than 255 characters"
+                            },
+                            pattern: {
+                              value: /^https?:\/\/.+\..+/i,
+                              message: "Please enter a valid URL starting with http:// or https://"
+                            }
+                          })}
+                        />
+                        {errors.orchidUrl && (
+                          <div className="text-danger small mt-2">
+                            <i className="bi bi-exclamation-circle me-1"></i>
+                            {errors.orchidUrl.message}
+                          </div>
+                        )}
+                      </Form.Group>
+
+                      {/* Price */}
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-semibold mb-3">
+                          <i className="bi bi-currency-dollar me-2 text-primary"></i>
+                          Price *
+                        </Form.Label>
+                        <Form.Control
+                          type="number"
+                          step="0.01"
+                          min="0.01"
+                          placeholder="0.00"
+                          className="rounded-pill px-4 py-3"
+                          style={{ fontSize: '1.1rem' }}
+                          {...register("price", {
+                            required: "Price is required",
+                            min: {
+                              value: 0.01,
+                              message: "Price must be greater than 0"
+                            },
+                            max: {
+                              value: 999999.99,
+                              message: "Price is too high"
+                            }
+                          })}
+                        />
+                        {errors.price && (
+                          <div className="text-danger small mt-2">
+                            <i className="bi bi-exclamation-circle me-1"></i>
+                            {errors.price.message}
+                          </div>
+                        )}
+                      </Form.Group>
+
+                      {/* Category Selection */}
+                      <Form.Group className="mb-4">
+                        <Form.Label className="fw-semibold mb-3">
+                          <i className="bi bi-folder me-2 text-primary"></i>
+                          Category *
+                        </Form.Label>
+                        <Form.Select
+                          className="rounded-pill px-4 py-3"
+                          style={{ fontSize: '1.1rem' }}
+                          {...register("categoryId", {
+                            required: "Category is required",
+                            validate: value => {
+                              if (!value || value === "") {
+                                return "Please select a category";
+                              }
+                              return true;
+                            }
+                          })}
+                          disabled={loadingCategories}
+                        >
+                          <option value="">
+                            {loadingCategories ? "Loading categories..." : "Select a category"}
+                          </option>
+                          {categories.map((category) => (
+                            <option key={category.categoryId} value={category.categoryId}>
+                              {category.categoryName}
+                            </option>
+                          ))}
+                        </Form.Select>
+                        {errors.categoryId && (
+                          <div className="text-danger small mt-2">
+                            <i className="bi bi-exclamation-circle me-1"></i>
+                            {errors.categoryId.message}
+                          </div>
+                        )}
+                      </Form.Group>
+
+                      {/* Natural Switch */}
                       <Form.Group className="mb-5">
                         <div className="d-flex align-items-center p-3 rounded-3" style={{ background: '#f8f9fa' }}>
                           <Form.Check
@@ -264,7 +400,7 @@ export default function EditOrchid() {
                               Natural Orchid
                             </Form.Label>
                             <div className="small text-muted">
-                              Toggle if this is a naturally grown orchid
+                              Toggle if this is a naturally grown orchid (not industry produced)
                             </div>
                           </div>
                         </div>
@@ -281,7 +417,7 @@ export default function EditOrchid() {
                         <Card className="border-0 shadow-sm rounded-4 overflow-hidden">
                           <div className="position-relative">
                             <Image 
-                              src={watchedImage || api.image} 
+                              src={watchedImage || api.orchidUrl || api.image || "https://via.placeholder.com/300x200?text=No+Image"} 
                               className="w-100"
                               style={{ 
                                 height: '200px', 
@@ -313,6 +449,11 @@ export default function EditOrchid() {
                                 <><i className="bi bi-gear me-1 text-warning"></i>Industry</>
                               )}
                             </small>
+                            {api.price && (
+                              <div className="mt-1">
+                                <span className="badge bg-primary">${api.price}</span>
+                              </div>
+                            )}
                           </Card.Body>
                         </Card>
                       </div>
@@ -333,7 +474,7 @@ export default function EditOrchid() {
                     <Button 
                       variant="primary" 
                       type="submit"
-                      disabled={isSubmitting}
+                      disabled={isSubmitting || categories.length === 0}
                       className="rounded-pill px-5 py-2"
                       style={{ 
                         background: usingMockData ? 
@@ -346,12 +487,12 @@ export default function EditOrchid() {
                       {isSubmitting ? (
                         <>
                           <Spinner animation="border" size="sm" className="me-2" />
-                          {usingMockData ? 'Simulating...' : 'Saving...'}
+                          {usingMockData ? 'Simulating...' : 'Updating...'}
                         </>
                       ) : (
                         <>
                           <i className="bi bi-check-circle me-2"></i>
-                          {usingMockData ? 'Test Save' : 'Save Changes'}
+                          {usingMockData ? 'Test Update' : 'Update Orchid'}
                         </>
                       )}
                     </Button>
