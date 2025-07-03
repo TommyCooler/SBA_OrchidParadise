@@ -11,13 +11,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/categories")
-@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryController {
 
     @Autowired
     private ICategoryService categoryService;
 
-    @GetMapping
+    @GetMapping("")
     public ResponseEntity<List<Category>> getAllCategories() {
         try {
             List<Category> categories = categoryService.getAllCategories();

@@ -1,3 +1,216 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Montserrat:wght@500;700&display=swap');
+
+body, .homescreen-bg {
+  font-family: 'Inter', 'Montserrat', Arial, sans-serif;
+}
+
+.homescreen-bg {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding-bottom: 40px;
+}
+
+.orchid-title {
+  color: #fff;
+  letter-spacing: 1px;
+  text-shadow: 0 4px 24px rgba(0,0,0,0.15);
+}
+
+.orchid-subtitle {
+  color: #e0e0e0;
+  font-size: 1.25rem;
+}
+
+.stats-card {
+  border-radius: 2rem !important;
+  box-shadow: 0 8px 32px rgba(102,126,234,0.10);
+  margin-top: 1.5rem;
+}
+.stats-item {
+  padding: 1rem 0;
+}
+.stats-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 2rem;
+  margin: 0 auto 0.5rem auto;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+}
+
+.orchid-card {
+  border-radius: 1.5rem !important;
+  box-shadow: 0 8px 32px rgba(102,126,234,0.10);
+  transition: transform 0.25s cubic-bezier(.4,2,.3,1), box-shadow 0.25s;
+  cursor: pointer;
+  background: #fff;
+}
+.orchid-card:hover {
+  transform: translateY(-8px) scale(1.03);
+  box-shadow: 0 16px 40px rgba(102,126,234,0.18);
+}
+.orchid-img-wrapper {
+  height: 250px;
+  overflow: hidden;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  position: relative;
+}
+.orchid-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: brightness(0.93);
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+  transition: filter 0.2s;
+}
+.orchid-card:hover .orchid-img {
+  filter: brightness(1);
+}
+.orchid-img-gradient {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.08) 0%, rgba(0,0,0,0.18) 100%);
+  pointer-events: none;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
+}
+.orchid-badge {
+  font-size: 0.9rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+}
+.orchid-price-badge {
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+}
+.user-role-badge {
+  background: #fff;
+  color: #764ba2;
+  font-weight: 600;
+  border-radius: 1rem;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+}
+.orchid-card-title {
+  font-size: 1.25rem;
+  font-family: 'Montserrat', 'Inter', Arial, sans-serif;
+  font-weight: 700;
+}
+.orchid-card-desc {
+  font-size: 1rem;
+  color: #888;
+}
+.orchid-qty-input {
+  border-radius: 1rem !important;
+  text-align: center;
+  font-weight: 600;
+  border: 1.5px solid #e0e0e0;
+  box-shadow: none;
+  transition: border 0.2s;
+}
+.orchid-qty-input:focus {
+  border: 1.5px solid #764ba2;
+  box-shadow: 0 0 0 2px #764ba230;
+}
+.orchid-cart-btn {
+  border-radius: 1.5rem !important;
+  font-weight: 600;
+  font-size: 1rem;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+  transition: background 0.2s, box-shadow 0.2s;
+}
+.orchid-cart-btn:hover, .orchid-cart-btn:focus {
+  background: linear-gradient(90deg, #764ba2 0%, #667eea 100%);
+  box-shadow: 0 4px 16px rgba(102,126,234,0.18);
+}
+.orchid-detail-btn {
+  border-radius: 1.5rem !important;
+  font-weight: 600;
+  font-size: 1rem;
+  margin-top: 0.5rem;
+  border-width: 2px;
+  transition: background 0.2s, color 0.2s;
+}
+.orchid-detail-btn:hover, .orchid-detail-btn:focus {
+  background: #764ba2;
+  color: #fff;
+  border-color: #764ba2;
+}
+.orchid-manage-btn {
+  border-radius: 2rem !important;
+  font-weight: 700;
+  font-size: 1.15rem;
+  background: #fff;
+  color: #764ba2;
+  border: 2px solid #764ba2;
+  transition: background 0.2s, color 0.2s;
+}
+.orchid-manage-btn:hover, .orchid-manage-btn:focus {
+  background: #764ba2;
+  color: #fff;
+}
+.custom-alert {
+  border-radius: 1.5rem !important;
+  font-size: 1.1rem;
+  box-shadow: 0 2px 12px rgba(255,193,7,0.10);
+}
+.custom-user-alert {
+  background: linear-gradient(90deg, #e0e7ff 0%, #f3e8ff 100%);
+  color: #333;
+  border: none;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+}
+.custom-nonuser-alert {
+  border-radius: 1rem !important;
+  font-size: 0.98rem;
+  background: #f8f9fa;
+  color: #764ba2;
+  border: 1.5px solid #e0e0e0;
+}
+.empty-orchid-card {
+  max-width: 500px;
+  border-radius: 2rem !important;
+  box-shadow: 0 8px 32px rgba(102,126,234,0.10);
+}
+.custom-toast {
+  border-radius: 1.5rem !important;
+  font-size: 1.05rem;
+  font-weight: 600;
+  box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+}
+@media (max-width: 768px) {
+  .orchid-img-wrapper {
+    height: 180px;
+  }
+  .stats-card {
+    margin-top: 0.5rem;
+  }
+  .orchid-title {
+    font-size: 2.1rem;
+  }
+  .orchid-card-title {
+    font-size: 1.1rem;
+  }
+  .orchid-card-desc {
+    font-size: 0.95rem;
+  }
+  .orchid-cart-btn, .orchid-detail-btn {
+    font-size: 0.95rem;
+  }
+}
+
 .home-container {
   padding: 100px 0 2rem 0; /* Space for fixed navbar */
 }
@@ -190,6 +403,53 @@
   font-size: 0.875rem;
 }
 
+/* Cart Section Styles */
+.cart-section {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 12px;
+  padding: 15px;
+  margin-bottom: 15px;
+  border: 2px solid #e3f2fd;
+}
+
+.quantity-input {
+  border-radius: 8px !important;
+  border: 2px solid #28a745 !important;
+  text-align: center;
+  font-weight: 600;
+  color: #28a745;
+}
+
+.quantity-input:focus {
+  border-color: #20c997 !important;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25) !important;
+}
+
+.add-to-cart-btn {
+  background: linear-gradient(135deg, #28a745 0%, #20c997 100%) !important;
+  border: none !important;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.add-to-cart-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+  background: linear-gradient(135deg, #20c997 0%, #28a745 100%) !important;
+}
+
+.add-to-cart-btn:disabled {
+  opacity: 0.7;
+  transform: none;
+  box-shadow: 0 2px 8px rgba(40, 167, 69, 0.2);
+}
+
+/* Toast Notifications */
+.toast-header .bi {
+  font-size: 1.1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .home-container {
@@ -241,6 +501,19 @@
   .orchid-card .card-text {
     font-size: 0.9rem;
   }
+  
+  .cart-section {
+    padding: 10px;
+  }
+  
+  .quantity-input {
+    font-size: 0.9rem;
+  }
+  
+  .add-to-cart-btn {
+    font-size: 0.8rem;
+    padding: 6px 12px;
+  }
 }
 
 /* Animation */
@@ -265,3 +538,48 @@
 .orchid-card:nth-child(4) { animation-delay: 0.4s; }
 .orchid-card:nth-child(5) { animation-delay: 0.5s; }
 .orchid-card:nth-child(6) { animation-delay: 0.6s; }
+
+/* Add to Cart Button Styles */
+.btn-success:hover {
+  transform: translateY(-2px) !important;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4) !important;
+}
+
+.btn-success:active {
+  transform: translateY(0) !important;
+}
+
+/* Quantity Input Styles */
+.form-control:focus {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.25);
+}
+
+/* Card Hover Effect Enhancement */
+.card:hover .btn-outline-primary {
+  border-color: #0056b3;
+}
+
+/* Remove arrows from number input */
+.form-control[type="number"]::-webkit-outer-spin-button,
+.form-control[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.form-control[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Smooth transitions for all buttons */
+.btn {
+  transition: all 0.3s ease;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+}
+
+.btn:active {
+  transform: translateY(0);
+}

@@ -1,8 +1,8 @@
 package com.sba.dto;
 
-public record LoginRequest(String email, String password) {
+public record LoginRequest(String accountName, String password) {
     public LoginRequest {
-        if (email == null || email.isBlank()) {
+        if (accountName == null || accountName.isBlank()) {
             throw new IllegalArgumentException("Email cannot be null or blank");
         }
         if (password == null || password.isBlank()) {

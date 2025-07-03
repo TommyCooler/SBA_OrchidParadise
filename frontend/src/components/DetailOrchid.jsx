@@ -5,6 +5,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 import { Navigation, Pagination, EffectFade } from 'swiper/modules';
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 import { OrchidService, CategoryService } from '../services';
+import { useAuth } from '../contexts/AuthContext';
 
 // Import styles
 import 'swiper/css';
@@ -22,6 +23,7 @@ export default function DetailOrchid() {
   const [activeSection, setActiveSection] = useState('details');
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     fetchOrchidData();
@@ -201,15 +203,17 @@ export default function DetailOrchid() {
                   </div>
                 )}
 
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className="edit-button"
-                  onClick={() => navigate(`/edit/${orchid.orchidId}`)}
-                >
-                  <i className="fas fa-edit"></i>
-                  Edit Orchid
-                </motion.button>
+                {isAdmin && (
+                  <motion.button
+                    whileHover={{ scale: 1.02 }}
+                    whileTap={{ scale: 0.98 }}
+                    className="edit-button"
+                    onClick={() => navigate(`/edit/${orchid.orchidId}`)}
+                  >
+                    <i className="fas fa-edit"></i>
+                    Edit Orchid
+                  </motion.button>
+                )}
               </motion.div>
             )}
 

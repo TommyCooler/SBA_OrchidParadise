@@ -27,6 +27,34 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
+    public String extractAccountID(String token) {
+        return extractClaim(token, claims -> claims.get("accountId", String.class));
+    }
+
+    public String extractRole(String token) {
+        return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String generateToken(String accountName, String role, Long accountId) {
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("role", role);
+        claims.put("accountId", accountId);
+        return generateTokenWithClaims(accountName, claims);
+    }
+
+    // Add method to generate token with accountName and claims
+    public String generateTokenWithClaims(String accountName, Map<String, Object> claims) {
+        return Jwts
+                .builder()
+                .claims(claims)
+                .subject(accountName)
+                .issuedAt(new Date(System.currentTimeMillis()))
+                .expiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSigningKey())
+                .compact();
+    }
+
+    // Generic function
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
         return claimsResolver.apply(claims);
@@ -53,7 +81,7 @@ public class JwtService {
     public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
         return buildToken(extractClaims, userDetails, jwtExpiration);
     }
-
+    
     private String buildToken(Map<String, Object> extractClaims, UserDetails userDetails, Long jwtExpiration) {
         return Jwts
                 .builder()
@@ -77,5 +105,16 @@ public class JwtService {
 
     public Long getExpirationTime(String token) {
         return extractClaim(token, Claims::getExpiration).getTime();
+    }
+
+    // Add method to validate token with accountName (for compatibility)
+    public boolean validateToken(String token, String accountName) {
+        final String tokenAccountName = extractUsername(token);
+        return (tokenAccountName.equals(accountName)) && !isTokenExpired(token);
+    }
+
+    // Add method to extract account name (alias for extractUsername)
+    public String extractAccountName(String token) {
+        return extractUsername(token);
     }
 }

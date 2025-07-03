@@ -1,17 +1,19 @@
+import React from 'react';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import { FaHome, FaLeaf, FaUsers, FaInfoCircle, FaEnvelope, FaFolder, FaSignInAlt, FaSignOutAlt } from 'react-icons/fa';
-import { AccountService } from '../services';
+import { FaHome, FaLeaf, FaUsers, FaInfoCircle, FaEnvelope, FaFolder, FaSignInAlt, FaSignOutAlt, FaShoppingCart } from 'react-icons/fa';
+import { useAuth } from '../contexts/AuthContext';
 import './NavBar.css';
 
 function NavBar() {
-  const isAuthenticated = AccountService.isAuthenticated();
-  const currentUser = AccountService.getCurrentUser();
+  const { isAuthenticated, currentUser, logout } = useAuth();
+  const isAdmin = currentUser?.role === 'ADMIN';
+  const isUser = currentUser?.role === 'USER';
 
   const handleLogout = () => {
-    AccountService.logout();
+    logout();
     window.location.href = '/';
   };
 
@@ -29,18 +31,22 @@ function NavBar() {
               <FaHome className="nav-icon" />
               Home
             </Nav.Link>
-            <Nav.Link href="/orchids" className="nav-item">
-              <FaLeaf className="nav-icon" />
-              Orchids
-            </Nav.Link>
-            <Nav.Link href="/categories" className="nav-item">
-              <FaFolder className="nav-icon" />
-              Categories
-            </Nav.Link>
-            <Nav.Link href="/employees" className="nav-item">
-              <FaUsers className="nav-icon" />
-              Our Team
-            </Nav.Link>
+            {isAdmin && (
+              <>
+                <Nav.Link href="/orchids" className="nav-item">
+                  <FaLeaf className="nav-icon" />
+                  Orchids
+                </Nav.Link>
+                <Nav.Link href="/categories" className="nav-item">
+                  <FaFolder className="nav-icon" />
+                  Categories
+                </Nav.Link>
+                <Nav.Link href="/employees" className="nav-item">
+                  <FaUsers className="nav-icon" />
+                  Our Team
+                </Nav.Link>
+              </>
+            )}
             <Nav.Link href="/about" className="nav-item">
               <FaInfoCircle className="nav-icon" />
               About
@@ -49,6 +55,12 @@ function NavBar() {
               <FaEnvelope className="nav-icon" />
               Contact
             </Nav.Link>
+            {isUser && isAuthenticated && (
+              <Nav.Link href="/order" className="nav-item">
+                <FaShoppingCart className="nav-icon" />
+                Cart
+              </Nav.Link>
+            )}
             
             {isAuthenticated ? (
               <NavDropdown 

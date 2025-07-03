@@ -21,7 +21,7 @@ public interface IOrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByOrderDateBetween(@Param("startDate") Timestamp startDate, @Param("endDate") Timestamp endDate);
     
     @Query("SELECT o FROM Order o WHERE o.account.accountId = :accountId AND o.orderStatus = :status")
-    List<Order> findByAccountIdAndOrderStatus(@Param("accountId") Long accountId, @Param("status") OrderStatus status);
+    Order findByAccountIdAndOrderStatus(@Param("accountId") Long accountId, @Param("status") OrderStatus status);
     
     @Query("SELECT o FROM Order o WHERE o.totalAmount BETWEEN :minAmount AND :maxAmount")
     List<Order> findByTotalAmountBetween(@Param("minAmount") Double minAmount, @Param("maxAmount") Double maxAmount);
@@ -34,4 +34,7 @@ public interface IOrderRepository extends JpaRepository<Order, Long> {
     
     @Query("SELECT COUNT(o) FROM Order o WHERE o.account.accountId = :accountId")
     Long countOrdersByAccountId(@Param("accountId") Long accountId);
+    
+    List<Order> findByAccount_AccountIdAndOrderStatus(Long accountId, OrderStatus status);
+
 }

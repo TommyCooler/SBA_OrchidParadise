@@ -13,13 +13,12 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/orchids")
-@CrossOrigin(origins = "http://localhost:5173")
 public class OrchidController {
 
     @Autowired
     private IOrchidService orchidService;
 
-    @GetMapping
+    @GetMapping("/")
     public ResponseEntity<List<Orchid>> getAllOrchids() {
         try {
             List<Orchid> orchids = orchidService.getAllOrchids();

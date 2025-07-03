@@ -1,38 +1,23 @@
 import React, { useState } from 'react';
 import { Container, Card, Form, Button, Alert, Spinner } from 'react-bootstrap';
 import { useForm } from 'react-hook-form';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
-import { AccountService } from '../services';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
   const navigate = useNavigate();
+  const { login } = useAuth();
   
-  const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const { register, handleSubmit, formState: { errors } } = useForm();
 
   const onLoginSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      const result = await AccountService.login(data);
-      localStorage.setItem('currentUser', JSON.stringify(result));
+      await login(data);
       toast.success('Login successful!');
-      navigate('/orchids');
-    } catch (error) {
-      toast.error(error.message);
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const onRegisterSubmit = async (data) => {
-    setIsSubmitting(true);
-    try {
-      await AccountService.register(data);
-      toast.success('Registration successful! Please login.');
-      setShowRegister(false);
-      reset();
+      navigate('/');
     } catch (error) {
       toast.error(error.message);
     } finally {
@@ -51,47 +36,30 @@ export default function Login() {
               <Card.Body className="p-5">
                 <div className="text-center mb-4">
                   <h2 className="fw-bold text-primary">
-                    🌺 {showRegister ? 'Register' : 'Login'}
+                    🌺 Login
                   </h2>
                   <p className="text-muted">
-                    {showRegister ? 'Create your account' : 'Welcome back to Orchid Collection'}
+                    Welcome back to Orchid Collection
                   </p>
                 </div>
 
-                <Form onSubmit={handleSubmit(showRegister ? onRegisterSubmit : onLoginSubmit)}>
-                  {showRegister && (
-                    <Form.Group className="mb-3">
-                      <Form.Label>Full Name</Form.Label>
-                      <Form.Control
-                        type="text"
-                        placeholder="Enter your full name"
-                        className="rounded-pill"
-                        {...register("fullName", { 
-                          required: showRegister ? "Full name is required" : false 
-                        })}
-                      />
-                      {errors.fullName && (
-                        <div className="text-danger small mt-1">{errors.fullName.message}</div>
-                      )}
-                    </Form.Group>
-                  )}
-
+                <Form onSubmit={handleSubmit(onLoginSubmit)}>
                   <Form.Group className="mb-3">
-                    <Form.Label>Email</Form.Label>
+                    <Form.Label>Account Name</Form.Label>
                     <Form.Control
-                      type="email"
-                      placeholder="Enter your email"
+                      type="text"
+                      placeholder="Enter your account name"
                       className="rounded-pill"
-                      {...register("email", { 
-                        required: "Email is required",
-                        pattern: {
-                          value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
-                          message: "Invalid email address"
+                      {...register("accountName", { 
+                        required: "Account name is required",
+                        minLength: {
+                          value: 3,
+                          message: "Account name must be at least 3 characters"
                         }
                       })}
                     />
-                    {errors.email && (
-                      <div className="text-danger small mt-1">{errors.email.message}</div>
+                    {errors.accountName && (
+                      <div className="text-danger small mt-1">{errors.accountName.message}</div>
                     )}
                   </Form.Group>
 
@@ -126,27 +94,24 @@ export default function Login() {
                     {isSubmitting ? (
                       <>
                         <Spinner animation="border" size="sm" className="me-2" />
-                        {showRegister ? 'Registering...' : 'Logging in...'}
+                        Logging in...
                       </>
                     ) : (
-                      showRegister ? 'Register' : 'Login'
+                      'Login'
                     )}
                   </Button>
 
                   <div className="text-center">
-                    <Button
-                      variant="link"
-                      className="text-decoration-none"
-                      onClick={() => {
-                        setShowRegister(!showRegister);
-                        reset();
-                      }}
-                    >
-                      {showRegister 
-                        ? 'Already have an account? Login' 
-                        : "Don't have an account? Register"
-                      }
-                    </Button>
+                    <p className="mb-0">
+                      Don't have an account?{' '}
+                      <Link 
+                        to="/register" 
+                        className="text-decoration-none fw-bold"
+                        style={{ color: '#667eea' }}
+                      >
+                        Register here
+                      </Link>
+                    </p>
                   </div>
                 </Form>
               </Card.Body>

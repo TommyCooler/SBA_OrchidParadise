@@ -15,6 +15,8 @@ public interface IOrchidRepository extends JpaRepository<Orchid, Long> {
     Optional<Orchid> findByOrchidName(String orchidName);
     
     boolean existsByOrchidName(String orchidName);
+
+    Orchid findByOrchidId(Long orchidId);
     
     List<Orchid> findByCategory_CategoryId(Long categoryId);
     

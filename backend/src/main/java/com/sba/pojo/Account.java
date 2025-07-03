@@ -57,7 +57,7 @@ public class Account implements UserDetails{
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(() -> "ROLE_" + role.getRoleName());
     }
 
     public String getPassword() {

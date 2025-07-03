@@ -4,7 +4,7 @@ const OrchidService = {
   // Get all orchids
   getAllOrchids: async () => {
     try {
-      const response = await api.get('/orchids');
+      const response = await api.get('/orchids/');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch orchids');

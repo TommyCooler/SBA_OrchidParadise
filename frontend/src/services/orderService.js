@@ -24,7 +24,7 @@ const OrderService = {
   // Create new order
   createOrder: async (orderData) => {
     try {
-      const response = await api.post('/orders', orderData);
+      const response = await api.post('/orders/create', orderData);
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to create order');
@@ -78,6 +78,26 @@ const OrderService = {
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to update order status');
+    }
+  },
+
+  // Get my orders (by token)
+  getMyOrders: async () => {
+    try {
+      const response = await api.get('/orders/my');
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to fetch my orders');
+    }
+  },
+
+  // Add item to order (cart)
+  addToOrder: async (orchidId, quantity) => {
+    try {
+      const response = await api.post('/orders/create', { orchidId, quantity });
+      return response.data;
+    } catch (error) {
+      throw new Error(error.response?.data?.message || 'Failed to add item to order');
     }
   }
 };

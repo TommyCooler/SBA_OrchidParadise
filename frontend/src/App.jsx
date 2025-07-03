@@ -1,5 +1,6 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import { Routes, Route } from "react-router";
+import { AuthProvider } from "./contexts/AuthContext";
 import ListOfOrchids from "./components/ListOfOrchids";
 import EditOrchid from "./components/EditOrchid";
 import HomeScreen from "./components/HomeScreen";
@@ -10,10 +11,12 @@ import About from "./components/About";
 import Contact from "./components/Contact";
 import Login from "./components/Login";
 import CategoryManagement from "./components/CategoryManagement";
+import Register from "./components/Register";
+import Order from "./components/Order";
 
 function App() {
   return (
-    <>
+    <AuthProvider>
       <NavBar />
       <Routes>
         <Route path="/" element={<HomeScreen />} />
@@ -25,8 +28,10 @@ function App() {
         <Route path="/employees" element={<ListOfEmployees />} />
         <Route path="/about" element={<About />}/>
         <Route path="/contact" element={<Contact />}/>
+        <Route path="/register" element={<Register />}/>
+        <Route path="/order" element={<Order />}/>
       </Routes>
-    </>
+    </AuthProvider>
   );
 }
 

@@ -4,37 +4,40 @@ const AccountService = {
   // Register new account
   register: async (userData) => {
     try {
-      const response = await api.post('/accounts/register', null, {
-        params: {
-          email: userData.email,
-          password: userData.password,
-          fullName: userData.fullName
-        }
+      const response = await api.post('/auth/register', {
+        accountName: userData.accountName,
+        email: userData.email,
+        password: userData.password
       });
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Registration failed');
+      throw new Error(error.response?.data?.error || 'Registration failed');
     }
   },
 
   // Login
   login: async (credentials) => {
     try {
-      const response = await api.post('/accounts/login', null, {
-        params: {
-          email: credentials.email,
-          password: credentials.password
-        }
+      const response = await api.post('/auth/login', {
+        accountName: credentials.accountName,
+        password: credentials.password
       });
       
       // Store token if provided
       if (response.data?.token) {
         localStorage.setItem('authToken', response.data.token);
+        
+        // Store user info if needed
+        const userInfo = {
+          accountName: credentials.accountName,
+          token: response.data.token
+        };
+        localStorage.setItem('currentUser', JSON.stringify(userInfo));
       }
       
       return response.data;
     } catch (error) {
-      throw new Error(error.response?.data?.message || 'Login failed');
+      throw new Error(error.response?.data?.error || 'Invalid credentials');
     }
   },
 
@@ -53,6 +56,11 @@ const AccountService = {
   getCurrentUser: () => {
     const user = localStorage.getItem('currentUser');
     return user ? JSON.parse(user) : null;
+  },
+
+  // Get auth token
+  getToken: () => {
+    return localStorage.getItem('authToken');
   }
 };
 

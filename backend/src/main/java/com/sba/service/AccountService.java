@@ -29,4 +29,10 @@ public class AccountService implements IAccountService {
     public Account login(Account account) {
         return null;
     }
+
+    @Override
+    public Account getAccountById(Long accountId) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getAccountById'");
+    }
 }

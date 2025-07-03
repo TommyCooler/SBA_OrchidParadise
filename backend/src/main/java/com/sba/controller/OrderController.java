@@ -1,5 +1,7 @@
 package com.sba.controller;
 
+import com.sba.dto.OrderRequest;
+import com.sba.dto.OrderResponse;
 import com.sba.enums.OrderStatus;
 import com.sba.pojo.Order;
 import com.sba.service.IOrderService;
@@ -10,25 +12,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/orders")
-@CrossOrigin(origins = "*")
 public class OrderController {
 
     @Autowired
     private IOrderService orderService;
 
-    @GetMapping
-    public ResponseEntity<List<Order>> getAllOrders() {
-        try {
-            List<Order> orders = orderService.getAllOrders();
-            return ResponseEntity.ok(orders);
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+//    @GetMapping
+//    public ResponseEntity<List<Order>> getAllOrders() {
+//        try {
+//            List<Order> orders = orderService.getAllOrders();
+//            return ResponseEntity.ok(orders);
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+//        }
+//    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
@@ -42,45 +44,54 @@ public class OrderController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
+    @PostMapping("/create")
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest, @RequestHeader("Authorization") String authToken) {
         try {
-            Order createdOrder = orderService.createOrder(order);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdOrder);
+            System.out.println("Received token: " + authToken);
+            orderService.createOrder(orderRequest, "Bearer " + authToken);
+            return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody Order order) {
-        try {
-            Order updatedOrder = orderService.updateOrder(id, order);
-            return ResponseEntity.ok(updatedOrder);
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // @PutMapping("/{id}")
+    // public ResponseEntity<Order> updateOrder(@PathVariable Long id, @RequestBody OrderRequest orderRequest, @RequestHeader String token) {
+    //     try {
+    //         Order updatedOrder = orderService.updateOrder(id, orderRequest, token);
+    //         return ResponseEntity.ok(updatedOrder);
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    //     }
+    // }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-        try {
-            orderService.deleteOrder(id);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-        }
-    }
+    // @DeleteMapping("/{id}")
+    // public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+    //     try {
+    //         orderService.deleteOrder(id);
+    //         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    //     } catch (RuntimeException e) {
+    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+    //     } catch (Exception e) {
+    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+    //     }
+    // }
 
-    @GetMapping("/account/{accountId}")
-    public ResponseEntity<List<Order>> getOrdersByAccount(@PathVariable Long accountId) {
+    @GetMapping("/")
+    public ResponseEntity<?> getOrdersByAccount(@RequestHeader String token) {
         try {
-            List<Order> orders = orderService.getOrdersByAccount(accountId);
-            return ResponseEntity.ok(orders);
+            List<Order> orders = orderService.getMyOrders(token);
+            List<OrderResponse> orderResponses = new ArrayList<>();
+            for (Order order : orders) {
+                OrderResponse response = new OrderResponse();
+                response.setOrderStatus(order.getOrderStatus().toString());
+                response.setTotalAmount(order.getTotalAmount());
+                response.setOrderDate(order.getOrderDate());
+                orderResponses.add(response);
+            }
+            return ResponseEntity.ok(orderResponses);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }

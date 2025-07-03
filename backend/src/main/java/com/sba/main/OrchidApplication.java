@@ -10,7 +10,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
 @SpringBootApplication
 @EntityScan(basePackages = "com.sba.pojo")
-@ComponentScan(basePackages = "com.sba.controller, com.sba.service, com.sba.config")
+@ComponentScan(basePackages = "com.sba.controller, com.sba.service, com.sba.config, com.sba.repository, com.sba.security")
 @EnableJpaRepositories(basePackages = "com.sba.repository")
 public class OrchidApplication implements CommandLineRunner {
 
