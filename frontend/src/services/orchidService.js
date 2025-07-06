@@ -57,7 +57,7 @@ const OrchidService = {
       
       const response = await api.post('/orchids/create', requestBody, {
         headers: {
-          'Content-Type': 'application/json'
+          'Content-Type': 'application/json',
         }
       });
       

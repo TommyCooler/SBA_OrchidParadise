@@ -2,14 +2,20 @@ package com.sba.service;
 
 import com.sba.dto.OrderRequest;
 import com.sba.enums.OrderStatus;
+import com.sba.pojo.Account;
 import com.sba.pojo.Order;
 import com.sba.pojo.OrderDetail;
 import com.sba.repository.IAccountRepository;
 import com.sba.repository.IOrchidRepository;
 import com.sba.repository.IOrderRepository;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
@@ -44,13 +50,13 @@ public class OrderService implements IOrderService {
     }
     
     @Override
-    public String createOrder(OrderRequest orderRequest, String token) {
+    public String createOrder(OrderRequest orderRequest) {
         try {
             String message = "Order failed to create";
-            
-            // Extract account ID and get account/orchid once
-            Long accountId = Long.parseLong(jwtService.extractAccountID(token));
-            var account = iAccountRepository.findByAccountId(accountId);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Account account = (Account) authentication.getPrincipal();
+
             var orchid = iOrchidRepository.findByOrchidId(orderRequest.orchidId());
             
             // Validation
@@ -62,7 +68,7 @@ public class OrderService implements IOrderService {
             }
             
             // Find existing pending order
-            Order order = iOrderRepository.findByAccountIdAndOrderStatus(accountId, OrderStatus.PENDING);
+            Order order = iOrderRepository.findByAccountIdAndOrderStatus(account.getAccountId(), OrderStatus.PENDING);
             
             // Calculate item total (price * quantity)
             Double itemTotal = orchid.getPrice() * orderRequest.quantity();
@@ -78,7 +84,7 @@ public class OrderService implements IOrderService {
                     new Timestamp(new Date().getTime()),
                     OrderStatus.PENDING,
                     itemTotal, // Use calculated itemTotal
-                    account
+                    iAccountRepository.findByAccountId(account.getAccountId())
                 );
                 order = iOrderRepository.save(order);
                 message = "Order and order detail created successfully";
@@ -103,9 +109,8 @@ public class OrderService implements IOrderService {
     @Override
     public String updateOrder(Long orderId, OrderRequest orderRequest, String token) {
         try {
-            // Extract account ID from token
-            Long accountId = Long.parseLong(jwtService.extractAccountID(token));
-            var account = iAccountRepository.findByAccountId(accountId);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Account account = (Account) authentication.getPrincipal();
             var orchid = iOrchidRepository.findByOrchidId(orderRequest.orchidId());
             
             // Validation
@@ -120,7 +125,7 @@ public class OrderService implements IOrderService {
             Order existingOrder = getOrderById(orderId);
             
             // Check if user owns this order
-            if (!existingOrder.getAccount().getAccountId().equals(accountId)) {
+            if (!existingOrder.getAccount().getAccountId().equals(account.getAccountId())) {
                 throw new RuntimeException("You don't have permission to update this order");
             }
             
@@ -162,10 +167,10 @@ public class OrderService implements IOrderService {
     @Override
     public String deleteOrder(Long orderId, String token) {
         try {
-            // Extract account ID from token
-            Long accountId = Long.parseLong(jwtService.extractAccountID(token));
-            var account = iAccountRepository.findByAccountId(accountId);
-            
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Account account = (Account) authentication.getPrincipal();
+
             // Validation
             if (account == null) {
                 throw new RuntimeException("Account not found");
@@ -175,7 +180,7 @@ public class OrderService implements IOrderService {
             Order existingOrder = getOrderById(orderId);
             
             // Check if user owns this order
-            if (!existingOrder.getAccount().getAccountId().equals(accountId)) {
+            if (!existingOrder.getAccount().getAccountId().equals(account.getAccountId())) {
                 throw new RuntimeException("You don't have permission to delete this order");
             }
             
@@ -250,7 +255,12 @@ public class OrderService implements IOrderService {
     public Long countOrdersByAccount(Long accountId) {
         return iOrderRepository.countOrdersByAccountId(accountId);
     }
-    
+
+    @Override
+    public void createPayment(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+
+    }
+
     @Override
     public Order updateOrderStatus(Long orderId, OrderStatus newStatus) {
         Order order = getOrderById(orderId);
@@ -270,10 +280,12 @@ public class OrderService implements IOrderService {
 
     // Thêm method để get orders by token
     @Override
-    public List<Order> getMyOrders(String token) {
+    public List<Order> getMyOrders() {
         try {
-            Long accountId = Long.parseLong(jwtService.extractAccountID(token));
-            return getOrdersByAccount(accountId);
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Account account = (Account) authentication.getPrincipal();
+            System.out.println("Account: " + account);
+            return getOrdersByAccount(account.getAccountId());
         } catch (Exception e) {
             throw new RuntimeException("Failed to get orders: " + e.getMessage());
         }
@@ -282,8 +294,10 @@ public class OrderService implements IOrderService {
     @Override
     public List<Order> getMyOrdersByStatus(String token, OrderStatus status) {
         try {
-            Long accountId = Long.parseLong(jwtService.extractAccountID(token));
-            return getOrdersByAccountAndStatus(accountId, status);
+
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            Account account = (Account) authentication.getPrincipal();
+            return getOrdersByAccountAndStatus(account.getAccountId(), status);
         } catch (Exception e) {
             throw new RuntimeException("Failed to get orders by status: " + e.getMessage());
         }

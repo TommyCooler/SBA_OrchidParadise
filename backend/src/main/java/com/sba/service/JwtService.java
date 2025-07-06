@@ -27,12 +27,20 @@ public class JwtService {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractAccountID(String token) {
-        return extractClaim(token, claims -> claims.get("accountId", String.class));
-    }
+//    public String extractAccountID(String token) {
+//        return extractClaim(token, claims -> claims.get("accountId", String.class));
+//    }
 
     public String extractRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
+    }
+
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
+
+    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
+        return buildToken(extractClaims, userDetails, jwtExpiration);
     }
 
     public String generateToken(String accountName, String role, Long accountId) {
@@ -73,14 +81,6 @@ public class JwtService {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
-
-    public String generateToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails);
-    }
-
-    public String generateToken(Map<String, Object> extractClaims, UserDetails userDetails) {
-        return buildToken(extractClaims, userDetails, jwtExpiration);
-    }
     
     private String buildToken(Map<String, Object> extractClaims, UserDetails userDetails, Long jwtExpiration) {
         return Jwts
@@ -111,10 +111,5 @@ public class JwtService {
     public boolean validateToken(String token, String accountName) {
         final String tokenAccountName = extractUsername(token);
         return (tokenAccountName.equals(accountName)) && !isTokenExpired(token);
-    }
-
-    // Add method to extract account name (alias for extractUsername)
-    public String extractAccountName(String token) {
-        return extractUsername(token);
     }
 }

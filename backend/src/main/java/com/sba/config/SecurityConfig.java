@@ -1,9 +1,9 @@
 package com.sba.config;
 
-import com.sba.security.JwtAuthenticationFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -15,9 +15,14 @@ import org.springframework.web.cors.CorsConfigurationSource;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter;
-    
+    private final JwtAuthenticationFilter jwtAuthenticationFilter;
+    private final AuthenticationProvider authenticationProvider;
+
+    public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter, AuthenticationProvider authenticationProvider) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationProvider = authenticationProvider;
+    }
+
     @Autowired
     private CorsConfigurationSource corsConfigurationSource;
     
@@ -32,7 +37,9 @@ public class SecurityConfig {
     };
 
     private static final String[] USER_ENDPOINTS = {
-        "/api/user/**"
+        "/api/user/**",
+        "/api/orders/**",
+        "/api/order-details/**",
     };
 
     @Bean
@@ -46,6 +53,7 @@ public class SecurityConfig {
                 .requestMatchers(USER_ENDPOINTS).hasRole("USER")
                 .anyRequest().authenticated()
             )
+            .authenticationProvider(authenticationProvider)
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

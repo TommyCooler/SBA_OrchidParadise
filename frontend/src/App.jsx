@@ -13,6 +13,7 @@ import Login from "./components/Login";
 import CategoryManagement from "./components/CategoryManagement";
 import Register from "./components/Register";
 import Order from "./components/Order";
+import OrderDetail from "./components/OrderDetail";
 
 function App() {
   return (
@@ -29,7 +30,8 @@ function App() {
         <Route path="/about" element={<About />}/>
         <Route path="/contact" element={<Contact />}/>
         <Route path="/register" element={<Register />}/>
-        <Route path="/order" element={<Order />}/>
+        <Route path="/orders" element={<Order />}/>
+        <Route path="/order-detail/:order_id" element={<OrderDetail />} />
       </Routes>
     </AuthProvider>
   );

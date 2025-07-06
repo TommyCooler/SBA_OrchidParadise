@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import { useNavigate, Link } from 'react-router-dom';
 import toast, { Toaster } from 'react-hot-toast';
 import { useAuth } from '../contexts/AuthContext';
+import { decodeJWT } from '../utils/jwtUtils';
 
 export default function Login() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -15,9 +16,13 @@ export default function Login() {
   const onLoginSubmit = async (data) => {
     setIsSubmitting(true);
     try {
-      await login(data);
+      const result = await login(data);
       toast.success('Login successful!');
-      navigate('/');
+      if(result.role === 'admin' || result.role === 'ADMIN') {
+        navigate('/orchids');
+      } else {
+        navigate('/');
+      }
     } catch (error) {
       toast.error(error.message);
     } finally {

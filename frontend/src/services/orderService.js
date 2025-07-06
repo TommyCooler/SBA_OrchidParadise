@@ -4,7 +4,7 @@ const OrderService = {
   // Get all orders
   getAllOrders: async () => {
     try {
-      const response = await api.get('/orders');
+      const response = await api.get('/orders/all');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch orders');
@@ -84,7 +84,7 @@ const OrderService = {
   // Get my orders (by token)
   getMyOrders: async () => {
     try {
-      const response = await api.get('/orders/my');
+      const response = await api.get('/orders');
       return response.data;
     } catch (error) {
       throw new Error(error.response?.data?.message || 'Failed to fetch my orders');

@@ -89,10 +89,12 @@ export const AuthProvider = ({ children }) => {
       
       const token = AccountService.getToken();
       const user = AccountService.getCurrentUser();
+      let role = null;
+      let userName = null;
       
       if (token) {
-        const role = getUserRoleFromToken(token);
-        const userName = getUserNameFromToken(token);
+        role = getUserRoleFromToken(token);
+        userName = getUserNameFromToken(token);
         
         setUserRole(role);
         setIsUserRole(isUser(token));
@@ -103,8 +105,10 @@ export const AuthProvider = ({ children }) => {
         setCurrentUser(updatedUser);
         localStorage.setItem('currentUser', JSON.stringify(updatedUser));
       }
-      
-      return result;
+      return {
+        ...result,
+        role: role,
+      };
     } catch (error) {
       setIsAuthenticated(false);
       setCurrentUser(null);

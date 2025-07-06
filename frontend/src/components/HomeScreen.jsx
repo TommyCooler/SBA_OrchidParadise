@@ -220,7 +220,7 @@ export default function HomeScreen() {
             </div>
           )}
           {/* Stats Card */}
-          <div className="row justify-content-center">
+          {/* <div className="row justify-content-center">
             <div className="col-md-8">
               <Card className="bg-white shadow-lg border-0 rounded-4 stats-card">
                 <Card.Body className="text-center py-3">
@@ -244,8 +244,8 @@ export default function HomeScreen() {
                 </Card.Body>
               </Card>
             </div>
-          </div>
-        </div>
+          </div>*/}
+        </div> 
 
         {/* Orchids Grid */}
         {api.length === 0 && !loading ? (
@@ -369,13 +369,6 @@ export default function HomeScreen() {
             ))}
           </Row>
         )}
-        {/* Navigation to Management */}
-        <div className="text-center mt-5 pt-4">
-          <Link to="/orchids" className="btn btn-light btn-lg rounded-pill px-5 shadow orchid-manage-btn">
-            <i className="bi bi-gear me-2"></i>
-            Manage Orchids
-          </Link>
-        </div>
       </Container>
       {/* Toast Notifications */}
       <ToastContainer position="top-end" className="p-3" style={{ zIndex: 1050 }}>

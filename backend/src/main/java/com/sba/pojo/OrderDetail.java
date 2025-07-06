@@ -17,11 +17,11 @@ public class OrderDetail {
     @Column(name = "quantity", nullable = false)
     private Integer quantity;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "orchid_id", nullable = false)
     private Orchid orchid;
 
-    @ManyToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
@@ -59,6 +59,10 @@ public class OrderDetail {
 
     public Order getOrder() {
         return order;
+    }
+
+    public String orchidName() {
+        return orchid.getOrchidName();
     }
 
     public void setOrder(Order order) {

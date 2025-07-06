@@ -5,6 +5,7 @@ import com.sba.dto.OrderResponse;
 import com.sba.enums.OrderStatus;
 import com.sba.pojo.Order;
 import com.sba.service.IOrderService;
+import com.sba.service.VNPayService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -22,15 +23,18 @@ public class OrderController {
     @Autowired
     private IOrderService orderService;
 
-//    @GetMapping
-//    public ResponseEntity<List<Order>> getAllOrders() {
-//        try {
-//            List<Order> orders = orderService.getAllOrders();
-//            return ResponseEntity.ok(orders);
-//        } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-//        }
-//    }
+    @Autowired
+    private VNPayService vnPayService;
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Order>> getAllOrders() {
+        try {
+            List<Order> orders = orderService.getAllOrders();
+            return ResponseEntity.ok(orders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Order> getOrderById(@PathVariable Long id) {
@@ -45,10 +49,9 @@ public class OrderController {
     }
 
     @PostMapping("/create")
-    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest, @RequestHeader("Authorization") String authToken) {
+    public ResponseEntity<?> createOrder(@RequestBody OrderRequest orderRequest) {
         try {
-            System.out.println("Received token: " + authToken);
-            orderService.createOrder(orderRequest, "Bearer " + authToken);
+            orderService.createOrder(orderRequest);
             return ResponseEntity.status(HttpStatus.CREATED).body("Order created successfully");
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
@@ -79,13 +82,14 @@ public class OrderController {
     //     }
     // }
 
-    @GetMapping("/")
-    public ResponseEntity<?> getOrdersByAccount(@RequestHeader String token) {
+    @GetMapping("")
+    public ResponseEntity<?> getOrdersByAccount() {
         try {
-            List<Order> orders = orderService.getMyOrders(token);
+            List<Order> orders = orderService.getMyOrders();
             List<OrderResponse> orderResponses = new ArrayList<>();
             for (Order order : orders) {
                 OrderResponse response = new OrderResponse();
+                response.setOrderId(order.getOrderId());
                 response.setOrderStatus(order.getOrderStatus().toString());
                 response.setTotalAmount(order.getTotalAmount());
                 response.setOrderDate(order.getOrderDate());
@@ -186,4 +190,11 @@ public class OrderController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+
+//    @PostMapping("/payment/{orderId}")
+//    public String createPayment(@PathVariable Long orderId) {
+//        vnPayService.createPayment(orderId);
+//    }
+
+
 }

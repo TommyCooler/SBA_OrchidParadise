@@ -3,7 +3,10 @@ package com.sba.service;
 import com.sba.dto.OrderRequest;
 import com.sba.enums.OrderStatus;
 import com.sba.pojo.Order;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
 import java.sql.Timestamp;
 import java.util.List;
 
@@ -13,10 +16,10 @@ public interface IOrderService {
     Order getOrderById(Long id);
     
     // User methods (with token validation)
-    String createOrder(OrderRequest orderRequest, String token);
+    String createOrder(OrderRequest orderRequest);
     String updateOrder(Long orderId, OrderRequest orderRequest, String token);
     String deleteOrder(Long orderId, String token);
-    List<Order> getMyOrders(String token);
+    List<Order> getMyOrders();
     List<Order> getMyOrdersByStatus(String token, OrderStatus status);
     
     // Admin methods (without token validation)
@@ -35,4 +38,6 @@ public interface IOrderService {
     // Statistics methods
     Double getTotalAmountByStatus(OrderStatus status);
     Long countOrdersByAccount(Long accountId);
+    void createPayment(HttpServletRequest req, HttpServletResponse resp) throws IOException;
+
 }

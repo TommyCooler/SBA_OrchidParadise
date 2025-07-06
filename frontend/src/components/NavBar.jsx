@@ -1,20 +1,30 @@
-import React from 'react';
-import Container from 'react-bootstrap/Container';
-import Nav from 'react-bootstrap/Nav';
-import Navbar from 'react-bootstrap/Navbar';
-import NavDropdown from 'react-bootstrap/NavDropdown';
-import { FaHome, FaLeaf, FaUsers, FaInfoCircle, FaEnvelope, FaFolder, FaSignInAlt, FaSignOutAlt, FaShoppingCart } from 'react-icons/fa';
-import { useAuth } from '../contexts/AuthContext';
-import './NavBar.css';
+import React from "react";
+import Container from "react-bootstrap/Container";
+import Nav from "react-bootstrap/Nav";
+import Navbar from "react-bootstrap/Navbar";
+import NavDropdown from "react-bootstrap/NavDropdown";
+import {
+  FaHome,
+  FaLeaf,
+  FaUsers,
+  FaInfoCircle,
+  FaEnvelope,
+  FaFolder,
+  FaSignInAlt,
+  FaSignOutAlt,
+  FaShoppingCart,
+} from "react-icons/fa";
+import { useAuth } from "../contexts/AuthContext";
+import "./NavBar.css";
 
 function NavBar() {
   const { isAuthenticated, currentUser, logout } = useAuth();
-  const isAdmin = currentUser?.role === 'ADMIN';
-  const isUser = currentUser?.role === 'USER';
+  const isAdmin = currentUser?.role === "ADMIN";
+  const isUser = currentUser?.role === "USER";
 
   const handleLogout = () => {
     logout();
-    window.location.href = '/';
+    window.location.href = "/";
   };
 
   return (
@@ -27,10 +37,14 @@ function NavBar() {
         <Navbar.Toggle aria-controls="basic-navbar-nav" />
         <Navbar.Collapse id="basic-navbar-nav">
           <Nav className="ms-auto">
-            <Nav.Link href="/" className="nav-item">
-              <FaHome className="nav-icon" />
-              Home
-            </Nav.Link>
+            {!isAdmin && (
+              <>
+                <Nav.Link href="/" className="nav-item">
+                  <FaHome className="nav-icon" />
+                  Home
+                </Nav.Link>
+              </>
+            )}
             {isAdmin && (
               <>
                 <Nav.Link href="/orchids" className="nav-item">
@@ -47,29 +61,34 @@ function NavBar() {
                 </Nav.Link>
               </>
             )}
-            <Nav.Link href="/about" className="nav-item">
-              <FaInfoCircle className="nav-icon" />
-              About
-            </Nav.Link>
-            <Nav.Link href="/contact" className="nav-item">
-              <FaEnvelope className="nav-icon" />
-              Contact
-            </Nav.Link>
+            {!isAdmin && (
+              <>
+                <Nav.Link href="/about" className="nav-item">
+                  <FaInfoCircle className="nav-icon" />
+                  About
+                </Nav.Link>
+                <Nav.Link href="/contact" className="nav-item">
+                  <FaEnvelope className="nav-icon" />
+                  Contact
+                </Nav.Link>
+              </>
+            )}
+
             {isUser && isAuthenticated && (
-              <Nav.Link href="/order" className="nav-item">
+              <Nav.Link href="/orders" className="nav-item">
                 <FaShoppingCart className="nav-icon" />
                 Cart
               </Nav.Link>
             )}
-            
+
             {isAuthenticated ? (
-              <NavDropdown 
+              <NavDropdown
                 title={
                   <span>
                     <FaUsers className="nav-icon" />
-                    {currentUser?.fullName || 'User'}
+                    {currentUser?.fullName || "User"}
                   </span>
-                } 
+                }
                 id="user-nav-dropdown"
                 className="nav-item"
               >

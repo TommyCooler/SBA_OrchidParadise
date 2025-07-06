@@ -1,5 +1,6 @@
 package com.sba.controller;
 
+import com.sba.dto.LoginRequest;
 import com.sba.service.AuthService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -17,11 +18,12 @@ public class AuthController {
     private AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Map<String, String> loginRequest, HttpServletResponse response) {
+    public ResponseEntity<?> login(@RequestBody LoginRequest loginRequest) {
         try {
+
             String token = authService.login(
-                loginRequest.get("accountName"), 
-                loginRequest.get("password")
+                loginRequest.accountName(),
+                loginRequest.password()
             );
 
             Map<String, Object> responseBody = Map.of(

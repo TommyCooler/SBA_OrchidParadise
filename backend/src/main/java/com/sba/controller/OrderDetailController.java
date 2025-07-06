@@ -1,5 +1,6 @@
 package com.sba.controller;
 
+import com.sba.dto.OrderDetailResponse;
 import com.sba.pojo.OrderDetail;
 import com.sba.service.IOrderDetailService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,10 +74,17 @@ public class OrderDetailController {
     }
 
     @GetMapping("/order/{orderId}")
-    public ResponseEntity<List<OrderDetail>> getOrderDetailsByOrder(@PathVariable Long orderId) {
+    public ResponseEntity<?> getOrderDetailsByOrder(@PathVariable Long orderId) {
         try {
             List<OrderDetail> orderDetails = orderDetailService.getOrderDetailsByOrder(orderId);
-            return ResponseEntity.ok(orderDetails);
+            List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
+                    .map(detail -> new OrderDetailResponse(
+                            detail.getOrchid().getOrchidName(),
+                            detail.getOrchid().getOrchidUrl(),
+                            detail.getPrice(),
+                            detail.getQuantity()))
+                    .toList();
+            return ResponseEntity.ok(orderDetailResponses);
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
