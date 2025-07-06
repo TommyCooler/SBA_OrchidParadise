@@ -70,17 +70,17 @@ public class OrderController {
     //     }
     // }
 
-    // @DeleteMapping("/{id}")
-    // public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
-    //     try {
-    //         orderService.deleteOrder(id);
-    //         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-    //     } catch (RuntimeException e) {
-    //         return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
-    //     } catch (Exception e) {
-    //         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    //     }
-    // }
+     @DeleteMapping("/{id}")
+     public ResponseEntity<Void> deleteOrder(@PathVariable Long id) {
+         try {
+             orderService.deleteOrder(id);
+             return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+         } catch (RuntimeException e) {
+             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
+         } catch (Exception e) {
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+         }
+     }
 
     @GetMapping("")
     public ResponseEntity<?> getOrdersByAccount() {

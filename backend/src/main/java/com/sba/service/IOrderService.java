@@ -18,7 +18,7 @@ public interface IOrderService {
     // User methods (with token validation)
     String createOrder(OrderRequest orderRequest);
     String updateOrder(Long orderId, OrderRequest orderRequest, String token);
-    String deleteOrder(Long orderId, String token);
+    String deleteOrder(Long orderId);
     List<Order> getMyOrders();
     List<Order> getMyOrdersByStatus(String token, OrderStatus status);
     

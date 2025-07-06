@@ -3,6 +3,7 @@ import { Container, Row, Col, Card, Badge, Button, Spinner, Alert, Modal, Form, 
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import OrderService from '../services/orderService';
+import PaymentService from '../services/paymentService';
 
 export default function Order() {
   const [orders, setOrders] = useState([]);
@@ -61,6 +62,7 @@ export default function Order() {
     switch (status?.toUpperCase()) {
       case 'PENDING':
         return 'warning';
+      case 'CONFIRMED':
       case 'SUCCESS':
       case 'COMPLETED':
         return 'success';
@@ -75,6 +77,7 @@ export default function Order() {
     switch (status?.toUpperCase()) {
       case 'PENDING':
         return 'bi-clock';
+      case 'CONFIRMED':
       case 'SUCCESS':
       case 'COMPLETED':
         return 'bi-check-circle';
@@ -125,9 +128,20 @@ export default function Order() {
     return [...new Set(statuses)];
   };
 
-  const handlePayment = (orderId) => {
-    // Navigate to payment page or handle payment logic
-    navigate(`/payment/${orderId}`);
+  const handlePayment = async (orderId) => {
+    try {
+      // Gọi API để tạo URL thanh toán
+      const response = await PaymentService.createPaymentUrl(orderId);
+      console.log('Payment URL response:', response);
+      if (response.url) {
+        window.location.href = response.url;
+      } else {
+        throw new Error('Payment URL not received');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      setError('Failed to initiate payment. Please try again.');
+    }
   };
 
   if (loading) {
@@ -342,7 +356,7 @@ export default function Order() {
                 <Card className="border-0 shadow-sm rounded-4 text-center">
                   <Card.Body className="py-3">
                     <h4 className="text-success mb-1">
-                      {orders.filter(o => o.order_status?.toUpperCase() === 'SUCCESS' || o.order_status?.toUpperCase() === 'COMPLETED').length}
+                      {orders.filter(o => o.order_status?.toUpperCase() === 'SUCCESS' || o.order_status?.toUpperCase() === 'COMPLETED' || o.order_status?.toUpperCase() === 'CONFIRMED').length}
                     </h4>
                     <small className="text-muted">Completed</small>
                   </Card.Body>
@@ -482,7 +496,7 @@ export default function Order() {
                           <div className="d-flex justify-content-between align-items-center mb-2">
                             <small className="text-muted">Order Progress</small>
                             <small className="text-muted">
-                              {order.order_status?.toUpperCase() === 'SUCCESS' || order.order_status?.toUpperCase() === 'COMPLETED' ? '100%' : 
+                              {order.order_status?.toUpperCase() === 'SUCCESS' || order.order_status?.toUpperCase() === 'COMPLETED' || order.order_status?.toUpperCase() === 'CONFIRMED' ? '100%' : 
                                order.order_status?.toUpperCase() === 'PENDING' ? '50%' : '0%'}
                             </small>
                           </div>
@@ -490,7 +504,7 @@ export default function Order() {
                             <div 
                               className={`progress-bar bg-${getStatusColor(order.order_status)}`}
                               style={{ 
-                                width: order.order_status?.toUpperCase() === 'SUCCESS' || order.order_status?.toUpperCase() === 'COMPLETED' ? '100%' : 
+                                width: order.order_status?.toUpperCase() === 'SUCCESS' || order.order_status?.toUpperCase() === 'COMPLETED' || order.order_status?.toUpperCase() === 'CONFIRMED' ? '100%' : 
                                        order.order_status?.toUpperCase() === 'PENDING' ? '50%' : '10%'
                               }}
                             />

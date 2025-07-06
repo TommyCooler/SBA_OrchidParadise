@@ -79,6 +79,7 @@ public class OrderDetailController {
             List<OrderDetail> orderDetails = orderDetailService.getOrderDetailsByOrder(orderId);
             List<OrderDetailResponse> orderDetailResponses = orderDetails.stream()
                     .map(detail -> new OrderDetailResponse(
+                            detail.getOrderDetailId(),
                             detail.getOrchid().getOrchidName(),
                             detail.getOrchid().getOrchidUrl(),
                             detail.getPrice(),

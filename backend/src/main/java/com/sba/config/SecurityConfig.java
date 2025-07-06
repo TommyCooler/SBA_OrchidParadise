@@ -39,7 +39,7 @@ public class SecurityConfig {
     private static final String[] USER_ENDPOINTS = {
         "/api/user/**",
         "/api/orders/**",
-        "/api/order-details/**",
+        "/api/order-details/**", "/api/payments/**"
     };
 
     @Bean

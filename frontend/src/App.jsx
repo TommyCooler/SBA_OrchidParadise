@@ -14,6 +14,7 @@ import CategoryManagement from "./components/CategoryManagement";
 import Register from "./components/Register";
 import Order from "./components/Order";
 import OrderDetail from "./components/OrderDetail";
+import PaymentCallback from "./components/PaymentCallback";
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
         <Route path="/register" element={<Register />}/>
         <Route path="/orders" element={<Order />}/>
         <Route path="/order-detail/:order_id" element={<OrderDetail />} />
+        <Route path="/payment-callback" element={<PaymentCallback />} />
       </Routes>
     </AuthProvider>
   );

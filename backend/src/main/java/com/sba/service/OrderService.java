@@ -165,7 +165,7 @@ public class OrderService implements IOrderService {
     }
     
     @Override
-    public String deleteOrder(Long orderId, String token) {
+    public String deleteOrder(Long orderId) {
         try {
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
